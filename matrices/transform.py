@@ -1,6 +1,7 @@
 import numpy as np
 import collections.abc as c
 
+
 def translate(ref_point : c.Iterable) -> np.ndarray:
 
     if np.size(ref_point) != 3:

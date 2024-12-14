@@ -6,6 +6,8 @@ from PyQt5.QtGui import QDoubleValidator
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from mpl_toolkits.mplot3d import Axes3D
 from converter.stl2array import stl2array
+from view.cam_transform import CamTransform
+from view.world_transform import WorldTransform
 
 
 class MainWindow(QMainWindow):
@@ -42,9 +44,9 @@ class MainWindow(QMainWindow):
         grid_layout = QGridLayout()
 
         # Criar os widgets
-        line_edit_widget1 = self.create_world_widget("Ref mundo")
-        line_edit_widget2  = self.create_cam_widget("Ref camera")
-        line_edit_widget3  = self.create_intrinsic_widget("params instr")
+        line_edit_widget1 = self.create_world_widget("Ref Mundo")
+        line_edit_widget2  = self.create_cam_widget("Ref Camera")
+        line_edit_widget3  = self.create_intrinsic_widget("Params Instr")
 
         self.canvas = self.create_matplotlib_canvas()
 
@@ -97,7 +99,7 @@ class MainWindow(QMainWindow):
         grid_layout = QGridLayout()
 
         line_edits = []
-        labels = ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 'sθ:']  # Texto a ser exibido antes de cada QLineEdit
+        labels = ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 's0:']  # Texto a ser exibido antes de cada QLineEdit
 
         # Adicionar widgets QLineEdit com caixa de texto ao layout de grade
         for i in range(1, 7):
@@ -139,7 +141,7 @@ class MainWindow(QMainWindow):
         for i in range(1, 7):
             line_edit = QLineEdit()
             label = QLabel(labels[i-1])
-            validator = QDoubleValidator()  # Validador numérico
+            validator = QDoubleValidator() # Validador numérico
             line_edit.setValidator(validator)  # Aplicar o validador ao QLineEdit
             grid_layout.addWidget(label, (i-1)//2, 2*((i-1)%2))
             grid_layout.addWidget(line_edit, (i-1)//2, 2*((i-1)%2) + 1)
@@ -175,7 +177,7 @@ class MainWindow(QMainWindow):
         for i in range(1, 7):
             line_edit = QLineEdit()
             label = QLabel(labels[i-1])
-            validator = QDoubleValidator()  # Validador numérico
+            validator = QDoubleValidator() # Validador numérico
             line_edit.setValidator(validator)  # Aplicar o validador ao QLineEdit
             grid_layout.addWidget(label, (i-1)//2, 2*((i-1)%2))
             grid_layout.addWidget(line_edit, (i-1)//2, 2*((i-1)%2) + 1)
@@ -278,15 +280,34 @@ class MainWindow(QMainWindow):
                          color='blue', pivot='tail', length=length)
 
     def update_params_intrinsc(self, line_edits : list[QLineEdit]):
+        # ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 's0:']
+        intr_values = self.line_values(line_edits)
+
         return 
 
     def update_world(self,line_edits : list[QLineEdit]):
-        # update dos parametros extrinsecos mundando o ref mundo
+        # labels = ['X(move):', 'X(angle):', 'Y(move):', 'Y(angle):', 'Z(move):', 'Z(angle):']
+        
+        world_values = self.line_values(line_edits)
+        world_transf = WorldTransform(*world_values)
+
         return
 
+
     def update_cam(self,line_edits : list[QLineEdit]):
-        # update dos parametros extrinsecos mundando o ref cam
+        # labels = ['X(move):', 'X(angle):', 'Y(move):', 'Y(angle):', 'Z(move):', 'Z(angle):']
+
+        cam_values = self.line_values(line_edits)
+        cam_transf = CamTransform(*cam_values)
+
         return 
+    
+    def line_values(self, line_edits : list[QLineEdit]) -> list[float | int]:
+        values = []
+        for i in range(0,6):
+            values.append(float(line_edits[i].text()))
+
+        return values
     
     def projection_2d(self):
         return 
