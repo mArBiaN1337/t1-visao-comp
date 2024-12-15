@@ -1,6 +1,4 @@
 
-*obj_2d*
-
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

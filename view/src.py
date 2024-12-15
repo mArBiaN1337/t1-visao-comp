@@ -9,6 +9,7 @@ from converter.stl2array import stl2array
 from view.cam_transform import CamTransform
 from view.world_transform import WorldTransform
 
+CANVAS2_XY_LIM : float = 160
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,7 +21,7 @@ class MainWindow(QMainWindow):
         self.setup_ui()
 
     def set_variables(self):
-        self.obj = stl2array('tomcat')
+        self.obj3d = stl2array('tomcat')
         self.default_cam = np.eye(4) 
         self.cam = self.default_cam 
         self.px_base = 1280  
@@ -208,32 +209,21 @@ class MainWindow(QMainWindow):
         self.ax1.set_title("Imagem")
         self.canvas1 = FigureCanvas(self.fig1)
 
-
-
-
         self.set_ax1_plot()
-        # Você deverá criar a função de projeção 
-        object_2d = self.projection_2d()
-        # Falta plotar o object_2d que retornou da projeção
+        obj_2d = self.projection_2d()
+        self.ax1.plot(obj_2d[0,:],obj_2d[1,:])
         self.ax1.grid('True')
         self.ax1.set_aspect('equal')  
         canvas_layout.addWidget(self.canvas1)
-
-
 
         # Criar um objeto FigureCanvas para exibir o gráfico 3D
         self.fig2 = plt.figure()
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
 
-
-
-        self.set_ax2_plot(75)
+        self.set_ax2_plot(CANVAS2_XY_LIM)
         self.draw_default_cam(length=30)
         self.draw_cam(length=20)
         self.ax2.plot(self.obj[0,:],self.obj[1,:],self.obj[2,:],'purple')
-                
-
-
 
         self.canvas2 = FigureCanvas(self.fig2)
         canvas_layout.addWidget(self.canvas2)
@@ -347,17 +337,33 @@ class MainWindow(QMainWindow):
         return values
     
     def projection_2d(self):
-        pass 
+        w2c = CamTransform.inv_transf(self.cam)
+        proj = self.intr_param_matrix @ self.projection_matrix @  w2c
+
+        obj_2d = proj @ self.obj3d
+
+        if obj_2d[2,:].all() != 0:
+            obj_2d = obj_2d / obj_2d[2,:]
+
+        return obj_2d
+
     
     def update_canvas(self):
 
         plt.close('all')
 
         #UPDATE CANVAS1
+        self.ax1.clear()
+        self.set_ax1_plot()
+        self.ax1.grid('True')
+        self.ax1.set_aspect('equal')
+        obj_2d = self.projection_2d()
+        self.ax1.plot(obj_2d[0,:],obj_2d[1,:])
+        self.canvas1.draw()
 
         #UPDATE CANVAS2
         self.ax2.clear()
-        self.set_ax2_plot(75)
+        self.set_ax2_plot(CANVAS2_XY_LIM)
         self.draw_default_cam(length=30)
         self.draw_cam(length=20)
         self.ax2.plot(self.obj[0,:],self.obj[1,:],self.obj[2,:],'purple')

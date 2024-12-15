@@ -71,7 +71,7 @@ class Transform:
         return Transform.rot_u([0,0,1],ang,unit)
 
     @staticmethod
-    def inv_transf(matrix : c.Iterable) -> np.ndarray:
+    def inv_transf(matrix : np.ndarray) -> np.ndarray:
         return np.linalg.inv(np.array(matrix))
 
 
