@@ -1,6 +1,13 @@
 # t1-visao-comp
 Trabalho 1 de Visão Computacional UFES 2024/1
 
+# RUN IT
+
+- Dentro do diretório do projeto, faça no terminal:
+
+    python3 ./main.py
+    
+
 # TODO
 - fazer as funções de update das variáveis:
     - analisar e propor comportamento para os botões de update

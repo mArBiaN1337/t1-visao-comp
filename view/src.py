@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.intr_param_matrix = np.array([[self.dist_foc * self.sx , self.dist_foc * self.stheta, self.ox],
                                            [0 , self.dist_foc * self.sy, self.oy],
                                            [0,0,1]])
-        self.extr_param_matrix = np.eye(4)
+        self.extr_param_matrix = self.default_cam
         
     def setup_ui(self):
         # Criar o layout de grade
@@ -208,24 +208,33 @@ class MainWindow(QMainWindow):
         self.ax1.set_title("Imagem")
         self.canvas1 = FigureCanvas(self.fig1)
 
+
+
+
         self.set_ax1_plot()
         # Você deverá criar a função de projeção 
         object_2d = self.projection_2d()
-
         # Falta plotar o object_2d que retornou da projeção
-        
         self.ax1.grid('True')
         self.ax1.set_aspect('equal')  
         canvas_layout.addWidget(self.canvas1)
+
+
 
         # Criar um objeto FigureCanvas para exibir o gráfico 3D
         self.fig2 = plt.figure()
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
 
+
+
         self.set_ax2_plot(75)
         self.draw_default_cam(length=30)
+        self.draw_cam(length=20)
         self.ax2.plot(self.obj[0,:],self.obj[1,:],self.obj[2,:],'purple')
                 
+
+
+
         self.canvas2 = FigureCanvas(self.fig2)
         canvas_layout.addWidget(self.canvas2)
 
@@ -279,19 +288,26 @@ class MainWindow(QMainWindow):
                          self.cam[0,2], self.cam[1,2], self.cam[2,2],
                          color='blue', pivot='tail', length=length)
 
-    def update_params_intrinsc(self, line_edits : list[QLineEdit]):
+    def update_params_intrinsc(self, line_edits : list[QLineEdit]) -> None:
         # ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 's0:']
-        intr_values = self.line_values(line_edits)
+        intr_values = self.intr_values(line_edits)
 
-        return 
+        self.px_base = intr_values[0]
+        self.px_altura = intr_values[1]
+        self.ccd[0] = intr_values[2]
+        self.ccd[1] = intr_values[3]
+        self.dist_foc = intr_values[4]
+        self.stheta = intr_values[5]
+        
+        self.update_canvas()
 
     def update_world(self,line_edits : list[QLineEdit]):
         # labels = ['X(move):', 'X(angle):', 'Y(move):', 'Y(angle):', 'Z(move):', 'Z(angle):']
         
         world_values = self.line_values(line_edits)
         world_transf = WorldTransform(*world_values)
-
-        return
+        self.cam = world_transf.build_cam(self.cam)
+        self.update_canvas()
 
 
     def update_cam(self,line_edits : list[QLineEdit]):
@@ -299,24 +315,56 @@ class MainWindow(QMainWindow):
 
         cam_values = self.line_values(line_edits)
         cam_transf = CamTransform(*cam_values)
-
-        return 
+        self.cam = cam_transf.build_cam(self.cam)
+        self.update_canvas()
     
     def line_values(self, line_edits : list[QLineEdit]) -> list[float | int]:
         values = []
         for i in range(0,6):
-            values.append(float(line_edits[i].text()))
+            len_read_input = len(line_edits[i].text())
+            if len_read_input != 0:
+                values.append(float(line_edits[i].text()))
+            else: 
+                values.append(0)
+
+        return values
+    
+    def intr_values(self, line_edits : list[QLineEdit]) -> list[float | int]:
+        # ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 's0:']
+
+        values = [self.px_base,
+                  self.px_altura,
+                  self.ccd[0],
+                  self.ccd[1],
+                  self.dist_foc,
+                  self.stheta]
+        
+        for i in range(0,6):
+            len_read_input = len(line_edits[i].text())
+            if len_read_input != 0:
+                values[i] = float(line_edits[i].text())
 
         return values
     
     def projection_2d(self):
-        return 
-    
-    def generate_intrinsic_params_matrix(self):
-        return 
+        pass 
     
     def update_canvas(self):
-        return 
-    
+
+        plt.close('all')
+
+        #UPDATE CANVAS1
+
+        #UPDATE CANVAS2
+        self.ax2.clear()
+        self.set_ax2_plot(75)
+        self.draw_default_cam(length=30)
+        self.draw_cam(length=20)
+        self.ax2.plot(self.obj[0,:],self.obj[1,:],self.obj[2,:],'purple')
+        self.canvas2.draw()
+
+        
+
     def reset_canvas(self):
-        return
+        self.set_variables()
+        self.update_canvas()
