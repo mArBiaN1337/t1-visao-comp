@@ -2,7 +2,11 @@ import numpy as np
 from stl import mesh
 
 def stl2array(obj_name : str) -> np.ndarray :
-    obj_mesh = mesh.Mesh.from_file("./converter/imgs/" + obj_name + ".stl")
+    try:
+        obj_mesh = mesh.Mesh.from_file("./converter/imgs/" + obj_name + ".stl")
+    except:
+        obj_mesh = mesh.Mesh.from_file("./converter/imgs/tomcat.stl")
+
     obj_x = np.array([np.array(obj_mesh.x).flatten()])
     obj_y = np.array([np.array(obj_mesh.y).flatten()])
     obj_z = np.array([np.array(obj_mesh.z).flatten()])

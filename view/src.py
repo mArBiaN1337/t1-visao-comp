@@ -12,6 +12,7 @@ from view.world_transform import WorldTransform
 CANVAS2_XY_LIM : float = 160
 AXIS_LENGTH : int = 24
 COLOR_OBJ_3D : str = 'purple'
+STL_OBJ_3D : str = 'tomcat'
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow):
         self.setup_ui()
 
     def set_variables(self):
-        self.obj_3d = stl2array('tomcat')
+        self.obj_3d = stl2array(STL_OBJ_3D)
         self.default_cam = np.eye(4) 
         self.cam = np.array([[  0.469   , -0.062   , 0.881  , -203.916],
                              [  -0.883  , -0.033   , 0.468  , -101.573],
