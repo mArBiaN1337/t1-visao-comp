@@ -15,10 +15,13 @@ Alunos:
     python3 ./main.py
 
 # How It Looks:
+
 - TOMCAT F-14
+  
 ![image](https://github.com/user-attachments/assets/478b2994-d7ee-4cdb-ad54-8a2cd69cb492)
 
--CHILL GUY
+- CHILL GUY
+
 ![image](https://github.com/user-attachments/assets/50a0b4b6-d6cc-4d16-a4a8-49b1431c9e82)
 
 
