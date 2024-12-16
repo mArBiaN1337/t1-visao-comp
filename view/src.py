@@ -8,9 +8,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from converter.stl2array import stl2array
 from view.cam_transform import CamTransform
 from view.world_transform import WorldTransform
-from converter.house import house
 
-CANVAS2_XY_LIM : float = 15
+CANVAS2_XY_LIM : float = 160
+AXIS_LENGTH : int = 24
+COLOR_OBJ_3D : str = 'purple'
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -22,13 +23,12 @@ class MainWindow(QMainWindow):
         self.setup_ui()
 
     def set_variables(self):
-        #self.obj_3d = stl2array('chill')
-        self.obj_3d = house
+        self.obj_3d = stl2array('tomcat')
         self.default_cam = np.eye(4) 
-        self.cam = np.array([[0,0,1,-55],
-                             [-1,0,0,-5],
-                             [0,-1,0,7.5],
-                             [0,0,0,1]])
+        self.cam = np.array([[  0.469   , -0.062   , 0.881  , -203.916],
+                             [  -0.883  , -0.033   , 0.468  , -101.573],
+                             [   0.     , -0.998   , -0.07  ,   20.5  ],
+                             [   0.     ,  0.      , 0.     ,    1.   ]])
         self.px_base = 1280  
         self.px_altura = 720 
         self.dist_foc = 50 
@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
         grid_layout = QGridLayout()
 
         line_edits = []
-        labels = ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 's0:']  # Texto a ser exibido antes de cada QLineEdit
+        labels = ['n_pixels_base: [px]', 'n_pixels_altura: [px]', 'ccd_x: [mm]', 'ccd_y: [mm]', 'dist_focal: [mm]', 's0: [px/mm]']  # Texto a ser exibido antes de cada QLineEdit
 
         # Adicionar widgets QLineEdit com caixa de texto ao layout de grade
         for i in range(1, 7):
@@ -141,7 +141,7 @@ class MainWindow(QMainWindow):
         grid_layout = QGridLayout()
 
         line_edits = []
-        labels = ['X(move):', 'X(angle):', 'Y(move):', 'Y(angle):', 'Z(move):', 'Z(angle):']  # Texto a ser exibido antes de cada QLineEdit
+        labels = ['X(move):', 'X(angle [deg]):', 'Y(move):', 'Y(angle [deg]):', 'Z(move):', 'Z(angle [deg]):']  # Texto a ser exibido antes de cada QLineEdit
 
         # Adicionar widgets QLineEdit com caixa de texto ao layout de grade
         for i in range(1, 7):
@@ -177,7 +177,7 @@ class MainWindow(QMainWindow):
         grid_layout = QGridLayout()
 
         line_edits = []
-        labels = ['X(move):', 'X(angle):', 'Y(move):', 'Y(angle):', 'Z(move):', 'Z(angle):']  # Texto a ser exibido antes de cada QLineEdit
+        labels = ['X(move):', 'X(angle [deg]):', 'Y(move):', 'Y(angle [deg]):', 'Z(move):', 'Z(angle [deg]):']  # Texto a ser exibido antes de cada QLineEdit
 
         # Adicionar widgets QLineEdit com caixa de texto ao layout de grade
         for i in range(1, 7):
@@ -226,9 +226,9 @@ class MainWindow(QMainWindow):
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
 
         self.set_ax2_plot(CANVAS2_XY_LIM)
-        self.draw_default_cam(length=6)
-        self.draw_cam(length=6)
-        self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],'purple')
+        self.draw_default_cam(length=AXIS_LENGTH)
+        self.draw_cam(length=AXIS_LENGTH)
+        self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],COLOR_OBJ_3D)
 
         self.canvas2 = FigureCanvas(self.fig2)
         canvas_layout.addWidget(self.canvas2)
@@ -247,13 +247,13 @@ class MainWindow(QMainWindow):
         self.ax2.set_title("3D VIEW")
 
         self.ax2.set_xlabel("X")
-        self.ax2.set_xlim([-lim_xy-40,lim_xy])
+        self.ax2.set_xlim([-lim_xy,lim_xy])
 
         self.ax2.set_ylabel("Y")
         self.ax2.set_ylim([-lim_xy,lim_xy])
 
         self.ax2.set_zlabel("Z")
-        self.ax2.set_zlim([-20,20])
+        self.ax2.set_zlim([-lim_xy,lim_xy])
 
     def draw_default_cam(self,length=3):
         # Plot vector of x-axis
@@ -328,9 +328,12 @@ class MainWindow(QMainWindow):
     def line_values(self, line_edits : list[QLineEdit]) -> list[float | int]:
         values = []
         for i in range(0,6):
-            len_read_input = len(line_edits[i].text())
-            if len_read_input != 0:
-                values.append(float(line_edits[i].text()))
+            read_input = line_edits[i].text()
+            if len(read_input) != 0:
+                try:
+                    values.append(float(line_edits[i].text()))
+                except:
+                    values.append(0)
             else: 
                 values.append(0)
 
@@ -347,9 +350,12 @@ class MainWindow(QMainWindow):
                   self.stheta]
         
         for i in range(0,6):
-            len_read_input = len(line_edits[i].text())
-            if len_read_input != 0:
-                values[i] = float(line_edits[i].text())
+            read_input = line_edits[i].text()
+            if len(read_input) != 0:
+                try:
+                    values[i] = float(line_edits[i].text())
+                except:
+                    pass
 
         return values
     
@@ -381,11 +387,12 @@ class MainWindow(QMainWindow):
         #UPDATE CANVAS2
         self.ax2.clear()
         self.set_ax2_plot(CANVAS2_XY_LIM)
-        self.draw_default_cam(length=6)
-        self.draw_cam(length=6)
-        self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],'purple')
+        self.draw_default_cam(length=AXIS_LENGTH)
+        self.draw_cam(length=AXIS_LENGTH)
+        self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],COLOR_OBJ_3D)
         self.canvas2.draw()
 
     def reset_canvas(self):
         self.set_variables()
         self.update_canvas()
+        print("\nCanvas Resetado!\n")
