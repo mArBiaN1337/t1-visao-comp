@@ -10,7 +10,7 @@ from view.cam_transform import CamTransform
 from view.world_transform import WorldTransform
 from converter.house import house
 
-CANVAS2_XY_LIM : float = 30
+CANVAS2_XY_LIM : float = 15
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -226,8 +226,8 @@ class MainWindow(QMainWindow):
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
 
         self.set_ax2_plot(CANVAS2_XY_LIM)
-        self.draw_default_cam(length=30)
-        self.draw_cam(length=20)
+        self.draw_default_cam(length=6)
+        self.draw_cam(length=6)
         self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],'purple')
 
         self.canvas2 = FigureCanvas(self.fig2)
@@ -237,6 +237,8 @@ class MainWindow(QMainWindow):
         return canvas_widget
 
     def set_ax1_plot(self):
+
+        self.ax1.set_title("2D Projection")
         self.ax1.set_xlim([0,self.px_base])
         self.ax1.set_ylim([self.px_altura,0])
 
@@ -245,13 +247,13 @@ class MainWindow(QMainWindow):
         self.ax2.set_title("3D VIEW")
 
         self.ax2.set_xlabel("X")
-        self.ax2.set_xlim([-lim_xy,lim_xy])
+        self.ax2.set_xlim([-lim_xy-40,lim_xy])
 
         self.ax2.set_ylabel("Y")
         self.ax2.set_ylim([-lim_xy,lim_xy])
 
         self.ax2.set_zlabel("Z")
-        self.ax2.set_zlim([-100,100])
+        self.ax2.set_zlim([-20,20])
 
     def draw_default_cam(self,length=3):
         # Plot vector of x-axis
@@ -379,8 +381,8 @@ class MainWindow(QMainWindow):
         #UPDATE CANVAS2
         self.ax2.clear()
         self.set_ax2_plot(CANVAS2_XY_LIM)
-        self.draw_default_cam(length=30)
-        self.draw_cam(length=20)
+        self.draw_default_cam(length=6)
+        self.draw_cam(length=6)
         self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],'purple')
         self.canvas2.draw()
 
