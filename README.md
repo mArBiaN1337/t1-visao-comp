@@ -1,11 +1,10 @@
-# t1-visao-comp
-Trabalho 1 de Visão Computacional UFES 2024/1
+# Trabalho 1 de Visão Computacional UFES 2024/1
 
 Alunos:    
     - Marcellus T. Biancardi    
     - Vinicius Mondadori
 
-# RUN IT
+# Run It!
 
 - Adicione as dependências do arquivo "requeriments.txt" no seu virtual environment:
 
@@ -15,5 +14,7 @@ Alunos:
 
     python3 ./main.py
 
+# How It Looks:
 
-  ![image](https://github.com/user-attachments/assets/745b173b-1aed-40a6-847e-8f6850e1a7c2)
+![image](https://github.com/user-attachments/assets/478b2994-d7ee-4cdb-ad54-8a2cd69cb492)
+
