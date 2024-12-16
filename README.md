@@ -7,6 +7,10 @@ Alunos:
 
 # RUN IT
 
+- Adicione as dependências do arquivo "requeriments.txt" no seu virtual environment:
+
+    pip install -r requirements.txt
+  
 - Dentro do diretório do projeto, faça no terminal:
 
     python3 ./main.py
