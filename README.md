@@ -1,6 +1,8 @@
 # Trabalho 1 de Visão Computacional UFES 2024/1
 
-- Alunos:     Marcellus T. Biancardi     Vinicius Mondadori
+- Alunos:
+- Marcellus T. Biancardi
+- Vinicius Mondadori
 
 # Run It!
 
