@@ -8,8 +8,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from converter.stl2array import stl2array
 from view.cam_transform import CamTransform
 from view.world_transform import WorldTransform
+from converter.house import house
 
-CANVAS2_XY_LIM : float = 160
+CANVAS2_XY_LIM : float = 30
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -21,9 +22,13 @@ class MainWindow(QMainWindow):
         self.setup_ui()
 
     def set_variables(self):
-        self.obj3d = stl2array('tomcat')
+        #self.obj_3d = stl2array('chill')
+        self.obj_3d = house
         self.default_cam = np.eye(4) 
-        self.cam = self.default_cam 
+        self.cam = np.array([[0,0,1,-55],
+                             [-1,0,0,-5],
+                             [0,-1,0,7.5],
+                             [0,0,0,1]])
         self.px_base = 1280  
         self.px_altura = 720 
         self.dist_foc = 50 
@@ -38,7 +43,7 @@ class MainWindow(QMainWindow):
         self.intr_param_matrix = np.array([[self.dist_foc * self.sx , self.dist_foc * self.stheta, self.ox],
                                            [0 , self.dist_foc * self.sy, self.oy],
                                            [0,0,1]])
-        self.extr_param_matrix = self.default_cam
+        self.extr_param_matrix = self.cam
         
     def setup_ui(self):
         # Criar o layout de grade
@@ -113,7 +118,7 @@ class MainWindow(QMainWindow):
             line_edits.append(line_edit)
 
         # Criar o botão de atualização
-        update_button = QPushButton("Atualizar")
+        update_button = QPushButton("Atualizar Intrinseco")
 
         # Você deverá criar, no espaço reservado ao final, a função self.update_params_intrinsc ou outra que você queira 
         # Conectar a função de atualização aos sinais de clique do botão
@@ -149,7 +154,7 @@ class MainWindow(QMainWindow):
             line_edits.append(line_edit)
 
         # Criar o botão de atualização
-        update_button = QPushButton("Atualizar")
+        update_button = QPushButton("Atualizar Mundo")
 
         # Você deverá criar, no espaço reservado ao final, a função self.update_world ou outra que você queira 
         # Conectar a função de atualização aos sinais de clique do botão
@@ -185,7 +190,7 @@ class MainWindow(QMainWindow):
             line_edits.append(line_edit)
 
         # Criar o botão de atualização
-        update_button = QPushButton("Atualizar")
+        update_button = QPushButton("Atualizar Câmera")
 
         # Você deverá criar, no espaço reservado ao final, a função self.update_cam ou outra que você queira 
         # Conectar a função de atualização aos sinais de clique do botão
@@ -223,7 +228,7 @@ class MainWindow(QMainWindow):
         self.set_ax2_plot(CANVAS2_XY_LIM)
         self.draw_default_cam(length=30)
         self.draw_cam(length=20)
-        self.ax2.plot(self.obj[0,:],self.obj[1,:],self.obj[2,:],'purple')
+        self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],'purple')
 
         self.canvas2 = FigureCanvas(self.fig2)
         canvas_layout.addWidget(self.canvas2)
@@ -280,6 +285,7 @@ class MainWindow(QMainWindow):
 
     def update_params_intrinsc(self, line_edits : list[QLineEdit]) -> None:
         # ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 's0:']
+
         intr_values = self.intr_values(line_edits)
 
         self.px_base = intr_values[0]
@@ -288,6 +294,15 @@ class MainWindow(QMainWindow):
         self.ccd[1] = intr_values[3]
         self.dist_foc = intr_values[4]
         self.stheta = intr_values[5]
+
+        self.ox = self.px_base/2 
+        self.oy = self.px_altura/2 
+        self.sx = self.px_base / self.ccd[0]
+        self.sy = self.px_altura / self.ccd[1]
+
+        self.intr_param_matrix = np.array([[self.dist_foc * self.sx , self.dist_foc * self.stheta, self.ox],
+                                           [0 , self.dist_foc * self.sy, self.oy],
+                                           [0,0,1]])
         
         self.update_canvas()
 
@@ -340,10 +355,10 @@ class MainWindow(QMainWindow):
         w2c = CamTransform.inv_transf(self.cam)
         proj = self.intr_param_matrix @ self.projection_matrix @  w2c
 
-        obj_2d = proj @ self.obj3d
+        obj_2d = proj @ self.obj_3d
 
         if obj_2d[2,:].all() != 0:
-            obj_2d = obj_2d / obj_2d[2,:]
+           obj_2d = obj_2d / obj_2d[2,:]
 
         return obj_2d
 
@@ -366,10 +381,8 @@ class MainWindow(QMainWindow):
         self.set_ax2_plot(CANVAS2_XY_LIM)
         self.draw_default_cam(length=30)
         self.draw_cam(length=20)
-        self.ax2.plot(self.obj[0,:],self.obj[1,:],self.obj[2,:],'purple')
+        self.ax2.plot(self.obj_3d[0,:],self.obj_3d[1,:],self.obj_3d[2,:],'purple')
         self.canvas2.draw()
-
-        
 
     def reset_canvas(self):
         self.set_variables()

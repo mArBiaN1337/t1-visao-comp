@@ -1,4 +1,3 @@
-import collections.abc as c
 import numpy as np
 from stl import mesh
 
